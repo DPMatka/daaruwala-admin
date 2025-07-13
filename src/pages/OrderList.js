@@ -1,48 +1,145 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const OrderList = () => {
-    const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('All');
 
-    useEffect(() => {
-        // Placeholder: In a real app, fetch orders from backend API
-        const storedOrders = JSON.parse(localStorage.getItem('daaruwala_orders')) || [
-            // Sample data if localStorage is empty
-            { id: 'ORD001', customerName: 'John Doe', total: 1800, status: 'Pending', items: [{name: 'Absolut Vodka', qty: 1}] },
-            { id: 'ORD002', customerName: 'Jane Smith', total: 300, status: 'Shipped', items: [{name: 'Breezer Cranberry', qty: 2}] },
-            { id: 'ORD003', customerName: 'Alice Johnson', total: 2500, status: 'Delivered', items: [{name: 'Jack Daniel\'s', qty: 1}] }
-        ];
-        setOrders(storedOrders);
-    }, []);
+  // ✅ Fetch all orders from backend
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch('https://daaruwala-backend-5i6g.onrender.com/api/orders');
+      const data = await response.json();
+      setOrders(data);
+      setFilteredOrders(data); // Default: show all
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <h2 className="text-3xl font-bold mb-8 text-center">Order List</h2>
-            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map(order => (
-                        <tr key={order.id}>
-                            <td className="px-6 py-4">{order.id}</td>
-                            <td className="px-6 py-4">{order.customerName}</td>
-                            <td className="px-6 py-4">₹{order.total}</td>
-                            <td className="px-6 py-4">{order.status}</td>
-                            <td className="px-6 py-4">
-                                <button className="text-indigo-600">View</button>
-                            </td>
-                        </tr>
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  // ✅ Filter when status changes
+  useEffect(() => {
+    if (filterStatus === 'All') {
+      setFilteredOrders(orders);
+    } else {
+      const filtered = orders.filter(order => order.status === filterStatus);
+      setFilteredOrders(filtered);
+    }
+  }, [filterStatus, orders]);
+
+  // ✅ Update status handler
+  const updateStatus = async (orderId, newStatus) => {
+    try {
+      await fetch(`https://daaruwala-backend-5i6g.onrender.com/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      alert('✅ Status updated!');
+      fetchOrders(); // Refresh orders
+    } catch (error) {
+      alert('❌ Failed to update order status');
+      console.error(error);
+    }
+  };
+
+  if (loading) return <p className="p-4">Loading orders...</p>;
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">📦 Admin - Order Management</h2>
+
+      {/* 🔽 Filter Dropdown */}
+      <div className="mb-6">
+        <label className="mr-2 font-semibold">Filter by status:</label>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="border rounded p-2"
+        >
+          <option value="All">All</option>
+          <option value="Pending">Pending</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      {/* 🧾 Order Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="text-left p-3">Customer</th>
+              <th className="text-left p-3">Phone</th>
+              <th className="text-left p-3">Address</th>
+              <th className="text-left p-3">Items</th>
+              <th className="text-left p-3">Total</th>
+              <th className="text-left p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map(order => (
+              <tr key={order._id} className="border-b hover:bg-gray-50">
+                <td className="p-3">{order.customerName || 'N/A'}</td>
+                <td className="p-3">{order.contactNumber}</td>
+                <td className="p-3">{order.deliveryAddress}</td>
+                <td className="p-3 text-sm">
+                  <ul className="list-disc ml-4">
+                    {order.items.map((item, idx) => (
+                      <li key={idx}>
+                        ID: {item.productId}<br />
+                        Qty: {item.quantity} @ ₹{item.price}
+                      </li>
                     ))}
-                </tbody>
-            </table>
-        </div>
-    );
+                  </ul>
+                </td>
+                <td className="p-3 font-semibold">₹{order.totalAmount}</td>
+                <td className="p-3">
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold
+                      ${order.status === 'Pending' ? 'bg-yellow-200 text-yellow-800' :
+                        order.status === 'Shipped' ? 'bg-blue-200 text-blue-800' :
+                        order.status === 'Delivered' ? 'bg-green-200 text-green-800' :
+                        order.status === 'Cancelled' ? 'bg-red-200 text-red-800' :
+                        'bg-gray-200 text-gray-800'}
+                    `}>
+                      {order.status}
+                    </span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateStatus(order._id, e.target.value)}
+                      className="text-sm border rounded p-1"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filteredOrders.length === 0 && (
+              <tr>
+                <td colSpan="6" className="text-center text-gray-500 py-4">No orders found with selected status.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default OrderList;

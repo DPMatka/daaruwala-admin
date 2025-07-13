@@ -1,15 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Header = () => {
-    return (
-        <header className="bg-indigo-700 text-white shadow-lg">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">DaaruWala Admin</h1>
-                <Link to="/" className="bg-white text-indigo-700 px-3 py-1 rounded-lg font-medium">View Store</Link>
-            </div>
-        </header>
-    );
+const Header = ({ isLoggedIn, onLogout }) => {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    onLogout();          // 🔄 call App.js logout
+    navigate('/login');  // ↩ redirect to login
+  };
+
+  return (
+    <header className="bg-purple-600 text-white p-4 flex justify-between items-center">
+      <h1 className="text-xl font-bold">Daaruwala Admin</h1>
+
+      <nav className="space-x-4">
+        <Link to="/" className="hover:underline">Dashboard</Link>
+        <Link to="/products" className="hover:underline">Products</Link>
+        <Link to="/orders" className="hover:underline">Orders</Link>
+
+        {/* ✅ Show Logout button only if logged in */}
+        {isLoggedIn && (
+          <button
+            onClick={handleLogoutClick}
+            className="ml-4 bg-white text-purple-600 px-3 py-1 rounded hover:bg-gray-100"
+          >
+            Logout
+          </button>
+        )}
+      </nav>
+    </header>
+  );
 };
 
 export default Header;

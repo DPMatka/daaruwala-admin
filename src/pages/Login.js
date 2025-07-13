@@ -1,50 +1,65 @@
 import React, { useState } from 'react';
-// No direct API call here yet, just local login simulation
+import { useNavigate } from 'react-router-dom';
+
 const Login = ({ onLogin }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        // Basic client-side validation for demo purposes
-        if (email === 'admin@daaruwala.com' && password === 'admin123') {
-            alert('Admin Login Successful!');
-            onLogin(); // Call the onLogin prop from App.js to set isLoggedIn to true
-        } else {
-            alert('Invalid Admin Credentials!');
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    return (
-        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow mt-10"> {/* Added mt-10 for spacing */}
-            <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
-            <form onSubmit={handleLogin}>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg"
-                    />
-                </div>
-                <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-lg">Login</button>
-            </form>
-        </div>
-    );
+    try {
+      const res = await fetch('https://daaruwala-backend-5i6g.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('✅ Login successful!');
+        localStorage.setItem('adminToken', data.token);
+
+        // 🔄 Call App.js function to change isLoggedIn to true
+        onLogin(); 
+
+        // ✅ Redirect to dashboard
+        navigate('/');
+      } else {
+        alert(data.message || '❌ Invalid Admin Credentials!');
+      }
+    } catch (error) {
+      alert('❌ Backend connection failed');
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="max-w-sm mx-auto p-6 mt-20 border rounded shadow">
+      <h2 className="text-xl font-bold mb-4 text-center">Admin Login</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Admin Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+        <button type="submit" className="w-full bg-purple-600 text-white py-2 rounded">
+          Login
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default Login;

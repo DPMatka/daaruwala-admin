@@ -1,34 +1,69 @@
 import React, { useState, useEffect } from 'react';
+import { fetchProductById, createProduct, updateProduct } from '../api'; // Import API functions
 
-const ProductForm = ({ productId, onSave, onCancel }) => {
-    const [product, setProduct] = useState({ name: '', price: '', stock: '', category: 'Whiskey', image: '' });
+const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // Added refreshProducts prop
+    const [product, setProduct] = useState({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' }); // Changed 'stock' to 'stockQuantity', 'image' to 'imageUrl'
+    const [loadingProduct, setLoadingProduct] = useState(false);
+    const [formError, setFormError] = useState(null);
 
     useEffect(() => {
         if (productId) {
-            // In a real app, you would fetch the product by ID from your backend API
-            const products = JSON.parse(localStorage.getItem('daaruwala_products')); // Placeholder for now
-            const existingProduct = products ? products.find(p => p.id === productId) : null;
-            if (existingProduct) {
-                setProduct(existingProduct);
-            }
+            setLoadingProduct(true);
+            setFormError(null);
+            const getProduct = async () => {
+                try {
+                    const existingProduct = await fetchProductById(productId); // Fetch from backend
+                    setProduct({
+                        name: existingProduct.name,
+                        price: existingProduct.price,
+                        stockQuantity: existingProduct.stockQuantity, // Map to new name
+                        category: existingProduct.category,
+                        imageUrl: existingProduct.imageUrl || '' // Map to new name
+                    });
+                } catch (err) {
+                    console.error("Failed to fetch product for editing:", err);
+                    setFormError("Failed to load product details.");
+                } finally {
+                    setLoadingProduct(false);
+                }
+            };
+            getProduct();
         } else {
-            setProduct({ name: '', price: '', stock: '', category: 'Whiskey', image: '' }); // Clear form for new product
+            setProduct({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' }); // Reset form for new product
         }
-    }, [productId]); // Re-run when productId changes
+    }, [productId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProduct(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSave(product);
+        setFormError(null);
+        try {
+            if (productId) {
+                await updateProduct(productId, product); // Update via backend API
+                alert('Product updated successfully!');
+            } else {
+                await createProduct(product); // Create via backend API
+                alert('Product added successfully!');
+            }
+            onSave(); // This will typically close the form
+            refreshProducts(); // Refresh the list in ProductList.js
+        } catch (err) {
+            setFormError(err.message || "Failed to save product.");
+        }
     };
 
+    if (loadingProduct) {
+        return <div className="text-center">Loading product for edit...</div>;
+    }
+
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow mt-8"> {/* Added mt-8 for spacing */}
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow mt-8">
             <h3 className="text-xl font-bold mb-4">{productId ? 'Edit Product' : 'Add New Product'}</h3>
+            {formError && <p className="text-red-500 mb-4">{formError}</p>}
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Product Name</label>
                 <input type="text" name="name" value={product.name} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg" />
@@ -39,7 +74,7 @@ const ProductForm = ({ productId, onSave, onCancel }) => {
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Stock Quantity</label>
-                <input type="number" name="stock" value={product.stock} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg" />
+                <input type="number" name="stockQuantity" value={product.stockQuantity} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg" /> {/* Changed name */}
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Category</label>
@@ -53,7 +88,7 @@ const ProductForm = ({ productId, onSave, onCancel }) => {
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Image URL</label>
-                <input type="text" name="image" value={product.image} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
+                <input type="text" name="imageUrl" value={product.imageUrl} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" /> {/* Changed name */}
             </div>
             <div className="flex justify-end space-x-2">
                 <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg">Cancel</button>
