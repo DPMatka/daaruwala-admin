@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // ✅ Pre-filled credentials (for dev only)
+  const [email, setEmail] = useState('admin@daaruwala.com');
+  const [password, setPassword] = useState('admin123');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,17 +23,14 @@ const Login = ({ onLogin }) => {
         alert('✅ Login successful!');
         localStorage.setItem('adminToken', data.token);
 
-        // 🔄 Call App.js function to change isLoggedIn to true
         onLogin(); 
-
-        // ✅ Redirect to dashboard
-        navigate('/');
+        navigate('/'); // Go to dashboard
       } else {
         alert(data.message || '❌ Invalid Admin Credentials!');
       }
     } catch (error) {
       alert('❌ Backend connection failed');
-      console.error(error);
+      console.error('Login Error:', error);
     }
   };
 
