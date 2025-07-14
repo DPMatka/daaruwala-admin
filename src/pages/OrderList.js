@@ -83,6 +83,7 @@ const OrderList = () => {
               <th className="text-left p-3">Phone</th>
               <th className="text-left p-3">Address</th>
               <th className="text-left p-3">Items</th>
+              <th className="text-left p-3">Delivery</th>
               <th className="text-left p-3">Total</th>
               <th className="text-left p-3">Status</th>
             </tr>
@@ -90,19 +91,19 @@ const OrderList = () => {
           <tbody>
             {filteredOrders.map(order => (
               <tr key={order._id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{order.customerName || 'N/A'}</td>
+                <td className="p-3">{order.userId?.name || order.customerName || 'N/A'}</td>
                 <td className="p-3">{order.contactNumber}</td>
                 <td className="p-3">{order.deliveryAddress}</td>
                 <td className="p-3 text-sm">
                   <ul className="list-disc ml-4">
                     {order.items.map((item, idx) => (
                       <li key={idx}>
-                        ID: {item.productId}<br />
-                        Qty: {item.quantity} @ ₹{item.price}
+                        {item.name} (Qty: {item.quantity} @ ₹{item.price})
                       </li>
                     ))}
                   </ul>
                 </td>
+                <td className="p-3">₹{order.deliveryCharge || 0}</td>
                 <td className="p-3 font-semibold">₹{order.totalAmount}</td>
                 <td className="p-3">
                   <div className="flex items-center space-x-2">
@@ -132,7 +133,7 @@ const OrderList = () => {
             ))}
             {filteredOrders.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center text-gray-500 py-4">No orders found with selected status.</td>
+                <td colSpan="7" className="text-center text-gray-500 py-4">No orders found with selected status.</td>
               </tr>
             )}
           </tbody>
