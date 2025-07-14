@@ -74,7 +74,7 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Stock Quantity</label>
-                <input type="number" name="stockQuantity" value={product.stockQuantity} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg" /> {/* Changed name */}
+                <input type="number" name="stockQuantity" value={product.stockQuantity} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg" />
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Category</label>
@@ -82,13 +82,15 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
                     <option value="Whiskey">Whiskey</option>
                     <option value="Beer">Beer</option>
                     <option value="Vodka">Vodka</option>
+                    <option value="Rum">Rum</option>
                     <option value="Snacks">Snacks</option>
                     <option value="Mixers">Mixers</option>
+                    <option value="Cigarette">Cigarette</option>
                 </select>
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Image URL</label>
-                <input type="text" name="imageUrl" value={product.imageUrl} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" /> {/* Changed name */}
+                <input type="text" name="imageUrl" value={product.imageUrl} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
             </div>
             <div className="flex justify-end space-x-2">
                 <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg">Cancel</button>
