@@ -17,6 +17,7 @@ const Header = ({ isLoggedIn, onLogout }) => {
         <Link to="/" className="hover:underline">Dashboard</Link>
         <Link to="/products" className="hover:underline">Products</Link>
         <Link to="/orders" className="hover:underline">Orders</Link>
+        <Link to="/users" className="hover:underline">Users</Link> {/* ✅ New Link */}
 
         {/* ✅ Show Logout button only if logged in */}
         {isLoggedIn && (

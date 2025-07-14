@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Header from './components/Header';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProductList from './pages/ProductList';
 import OrderList from './pages/OrderList';
+import Users from './pages/Users'; // ✅ NEW
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -65,6 +66,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <OrderList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <Users />
             </ProtectedRoute>
           }
         />
