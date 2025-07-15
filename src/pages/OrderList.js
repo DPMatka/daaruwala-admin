@@ -91,7 +91,7 @@ const OrderList = () => {
           <tbody>
             {filteredOrders.map(order => (
               <tr key={order._id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{order.userId?.name || order.customerName || 'N/A'}</td>
+                <td className="p-3">{order.userId?.name || 'N/A'}</td>
                 <td className="p-3">{order.contactNumber}</td>
                 <td className="p-3">{order.deliveryAddress}</td>
                 <td className="p-3 text-sm">
