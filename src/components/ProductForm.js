@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProductById, createProduct, updateProduct } from '../api'; // Import API functions
 
-const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // Added refreshProducts prop
-    const [product, setProduct] = useState({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' }); // Changed 'stock' to 'stockQuantity', 'image' to 'imageUrl'
+const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => {
+    const [product, setProduct] = useState({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' });
     const [loadingProduct, setLoadingProduct] = useState(false);
     const [formError, setFormError] = useState(null);
 
@@ -12,13 +12,13 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
             setFormError(null);
             const getProduct = async () => {
                 try {
-                    const existingProduct = await fetchProductById(productId); // Fetch from backend
+                    const existingProduct = await fetchProductById(productId);
                     setProduct({
                         name: existingProduct.name,
                         price: existingProduct.price,
-                        stockQuantity: existingProduct.stockQuantity, // Map to new name
+                        stockQuantity: existingProduct.stockQuantity,
                         category: existingProduct.category,
-                        imageUrl: existingProduct.imageUrl || '' // Map to new name
+                        imageUrl: existingProduct.imageUrl || ''
                     });
                 } catch (err) {
                     console.error("Failed to fetch product for editing:", err);
@@ -29,7 +29,7 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
             };
             getProduct();
         } else {
-            setProduct({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' }); // Reset form for new product
+            setProduct({ name: '', price: '', stockQuantity: '', category: 'Whiskey', imageUrl: '' });
         }
     }, [productId]);
 
@@ -43,14 +43,14 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
         setFormError(null);
         try {
             if (productId) {
-                await updateProduct(productId, product); // Update via backend API
+                await updateProduct(productId, product);
                 alert('Product updated successfully!');
             } else {
-                await createProduct(product); // Create via backend API
+                await createProduct(product);
                 alert('Product added successfully!');
             }
-            onSave(); // This will typically close the form
-            refreshProducts(); // Refresh the list in ProductList.js
+            onSave();
+            refreshProducts();
         } catch (err) {
             setFormError(err.message || "Failed to save product.");
         }
@@ -86,6 +86,7 @@ const ProductForm = ({ productId, onSave, onCancel, refreshProducts }) => { // A
                     <option value="Snacks">Snacks</option>
                     <option value="Mixers">Mixers</option>
                     <option value="Cigarette">Cigarette</option>
+                    <option value="Party Supplies">Party Supplies</option> {/* <-- THIS IS THE ONLY CHANGE */}
                 </select>
             </div>
             <div className="mb-4">
